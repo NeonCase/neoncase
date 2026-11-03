@@ -114,7 +114,7 @@ html{-webkit-text-size-adjust:100%}img,svg,canvas{max-width:100%}
 @media(max-width:380px){.grid{grid-template-columns:repeat(2,1fr)!important}.card .e{font-size:32px}#top{font-size:13px}}
 @media(hover:none){.btn,nav a{min-height:40px}.card:hover,.btn:hover{transform:none}}
 </style></head><body>
-<header><span class="logo">NeonCase</span><span class="ver">v2.0</span><nav id="nav"></nav><a class="tg" href="https://t.me/Neoncasegame" target="_blank" rel="noopener" title="Наш Telegram-канал"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.9 4.3 18.8 19.4c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.7 13.2 2 11.7c-1-.3-1-1 .2-1.5L20.4 3.2c.9-.3 1.7.2 1.5 1.1z"/></svg><span>Telegram</span></a><button class="btn" id="snd" title="Звук"></button><button class="btn g" id="top">🎯 Скилл-чек</button><div id="bal"></div></header>
+<header><span class="logo">NeonCase</span><span class="ver">v2.0</span><nav id="nav"></nav><a class="tg" href="https://t.me/Neoncasegame" target="_blank" rel="noopener" title="Наш Telegram-канал"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.9 4.3 18.8 19.4c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.7 13.2 2 11.7c-1-.3-1-1 .2-1.5L20.4 3.2c.9-.3 1.7.2 1.5 1.1z"/></svg><span>Telegram</span></a><button class="btn" id="snd" title="Звук"></button><button class="btn g" id="top">💎 Заработай кристаллы</button><div id="bal"></div></header>
 <div id="live"></div><main id="app"></main>
 <footer>v2.0 · Симулятор кейсов CS2 · онлайн на Supabase. Виртуальная валюта не имеет реальной стоимости. · <a class="tgl" href="https://t.me/Neoncasegame" target="_blank" rel="noopener">Telegram-канал</a></footer><div id="toasts"></div>
 <script>addEventListener('error',function(e){try{var d=document.getElementById('errbn');if(!d){d=document.createElement('div');d.id='errbn';d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:999;background:#7f1d1d;color:#fff;padding:8px 12px;font:12px monospace;white-space:pre-wrap;max-height:40vh;overflow:auto';document.body.appendChild(d)}d.textContent+='ОШИБКА: '+e.message+' (строка '+e.lineno+':'+e.colno+')\n'}catch(x){}});</script>
@@ -152,12 +152,12 @@ const seen=new Set(),PL=WN.map((ws,r)=>Array.from({length:24},(_,k)=>{let n=(r>5
 const ITEMS={}; // все предметы по id
 /* ЭКОНОМИКА: цены скинов привязаны к цене кейса. Минимум = 25% цены, дальше 50–70%, окупаемые (×1–1.8), редкие ×3–18, ×50 и ×200.
    Веса тиров подбираются под RTP кейса (по умолчанию 93%): w0 — самый дешёвый тир, w1 и w2 фиксированы, верхние тиры масштабируются. */
-const TM=[[.25,.32],[.5,.7],[1,1.35,1.8],[3,5],[10,18],[50],[200]],TS=[0,30,16,1,.3,.06,.008];
+const TM=[[.35,.45],[.6,.8],[1,1.3,1.7],[2.5,4],[8,15],[40],[150]],TS=[0,28,34,1,.3,.06,.008]; // множители цены скинов и доли тиров (%); минимум дропа = 35% цены кейса
 const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
-function wts(rtp){const T=[3,4,5,6],A=T.reduce((a,r)=>a+TS[r]*avg(TM[r]),0),B=T.reduce((a,r)=>a+TS[r],0),m0=avg(TM[0]);
- const k=(rtp*100-54*m0-30*avg(TM[1])-16*avg(TM[2]))/(A-B*m0);return [54-k*B,30,16,k,k*.3,k*.06,k*.008]}
+function wts(rtp){const T=[3,4,5,6],A=T.reduce((a,r)=>a+TS[r]*avg(TM[r]),0),B=T.reduce((a,r)=>a+TS[r],0),m0=avg(TM[0]),R=100-TS[1]-TS[2];
+ const k=(rtp*100-R*m0-TS[1]*avg(TM[1])-TS[2]*avg(TM[2]))/(A-B*m0);return [R-k*B,TS[1],TS[2],k*TS[3],k*TS[4],k*TS[5],k*TS[6]]}
 PL.flat().forEach(b=>ITEMS[b.id]=b); // старые скины остаются в инвентарях (продажа, апгрейд, контракты)
-CASES.forEach((c,ci)=>{c.id=ci;c.rtp=c.rtp||.93;const W=wts(c.rtp);c.items=[];
+CASES.forEach((c,ci)=>{c.id=ci;c.rtp=c.rtp||.95;const W=wts(c.rtp);c.items=[];
  TM.forEach((ms,r)=>ms.forEach((m,j)=>{const ws=WN[r];let nm=(r>5?'★ ':'')+ws[(ci+j*3)%ws.length]+' | '+FIN[(ci*5+j*7+r*11)%24];while(seen.has(nm))nm+=' II';seen.add(nm);
   const b={id:c.k+'_'+r+'_'+j,n:nm,r,p:Math.max(1,Math.round(c.price*m))};ITEMS[b.id]=b;c.items.push({...b,w:W[r]/ms.length})}))});
 // Бесплатный кейс раз в 2 часа: только скины 1 000–30 000, средний дроп ≈ 3 000
@@ -170,7 +170,7 @@ const AV=['😎','🤖','👾','🦊','🐉','🎯'],BOTS=['Dragon','Nikita','xX
 
 /* ===== СОСТОЯНИЕ ===== */
 let K=null;
-const fresh=()=>({bal:1000,inv:[],xp:0,st:{o:0,sp:0,won:0,best:0,ok:0,fail:0,max:0},hist:[],name:'Игрок',av:'😎',snd:1,dl:{t:0,s:0},fr:0,ach:{},pr:{},u:1});
+const fresh=()=>({bal:5000,inv:[],xp:0,st:{o:0,sp:0,won:0,best:0,ok:0,fail:0,max:0},hist:[],name:'Игрок',av:'😎',snd:1,dl:{t:0,s:0},fr:0,ach:{},pr:{},u:1});
 let S=fresh();
 const save=()=>{S.ts=Date.now();try{K&&localStorage.setItem(K,JSON.stringify(S))}catch(e){}schedSave()};
 S.inv=S.inv.filter(v=>ITEMS[v.i]);S.hist=S.hist.filter(h=>ITEMS[h.i]); // чистка старых предметов после перебаланса
@@ -385,10 +385,12 @@ function compCase(s){const t=cmpRoll(),it=cmpItem(t,s),u=S.u++;
 function doUp(){const s=invSum(UP.sel)+UP.x,ch=upCh();
  if(busy)return;if(!UP.t||s<=0)return toast('Выберите предметы и цель');if(UP.x>S.bal)return toast('Недостаточно монет');
  busy=1;money(-UP.x);const r=Math.random()*100,ok=r<ch,t=UP.t,sel=new Set(UP.sel);
- const fin=()=>{S.inv=S.inv.filter(v=>!sel.has(v.u));
-  if(ok){S.inv.push({u:S.u++,i:t.id,t:Date.now()});S.st.ok++;S.st.max=Math.max(S.st.max,t.p);if(t.p>=s*10)S.st.x10=1;beep(900,.4,'triangle',.08);toast('Успех! '+t.n)}
-  else{S.st.fail++;beep(120,.5,'sawtooth',.06);toast('Провал — предметы сгорели')}
-  UP.sel.clear();UP.t=null;UP.x=0;busy=0;chk();save();render();$('.uw')?.classList.add(ok?'uwin':'ulose');
+ // Результат применяется и сохраняется СРАЗУ, до анимации: обновление страницы во время вращения ничего не отменит
+ S.inv=S.inv.filter(v=>!sel.has(v.u));
+ if(ok){S.inv.push({u:S.u++,i:t.id,t:Date.now()});S.st.ok++;S.st.max=Math.max(S.st.max,t.p);if(t.p>=s*10)S.st.x10=1}else S.st.fail++;
+ chk();save();cloudSave();
+ const fin=()=>{if(ok){beep(900,.4,'triangle',.08);toast('Успех! '+t.n)}else{beep(120,.5,'sawtooth',.06);toast('Провал — предметы сгорели')}
+  UP.sel.clear();UP.t=null;UP.x=0;busy=0;render();$('.uw')?.classList.add(ok?'uwin':'ulose');
   if(!ok&&s>=CMP_MIN)compCase(s)};
  if(S.upFast)return fin(); // ⚡ быстрый режим: без анимации
  $('.nd').style.transform=`rotate(${1800+r*3.6}deg)`;beep(300,.3,'sawtooth',.03);
@@ -527,10 +529,14 @@ async function pollDrops(){if(!OL.ready)return;try{const{data,error}=await sb.fr
 setInterval(pollDrops,4000);
 
 /* --- чат (таблица messages) и топ (profiles) --- */
-const chHtml=()=>OL.chat.map(m=>`<div><b>${hx(m.username)}:</b> ${hx(m.body)}</div>`).join('')||'<small>Пока тихо — напишите первым</small>';
+const kyT=t=>t?new Date(t).toLocaleTimeString('ru',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit'}):'';
+const kyDay=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Kyiv'}).format(new Date());
+const kyMid=()=>{const n=new Date(),p=new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Kyiv',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(n),g=k=>+p.find(x=>x.type==k).value;return n.getTime()-(((g('hour')%24)*60+g('minute'))*60+g('second'))*1000-n.getMilliseconds()}; // 00:00 по Киеву
+const chHtml=()=>OL.chat.map(m=>`<div><small style="color:var(--m)">${kyT(m.created_at)}</small> <b>${hx(m.username)}:</b> ${hx(m.body)}</div>`).join('')||'<small>Пока тихо — напишите первым</small>';
 const ago=t=>{const m=(Date.now()-new Date(t))/6e4;return m<1?'только что':m<60?Math.floor(m)+' мин назад':m<1440?Math.floor(m/60)+' ч назад':Math.floor(m/1440)+' дн назад'};
 const lbHtml=()=>OL.lb.map(p=>`<div>${hx(p.av||'')} <b class=pl data-a=prof data-n="${hx(p.username)}">${hx(p.username)}</b> · ур. ${p.lvl|0}${p.created_at?' · <small>'+ago(p.created_at)+'</small>':''}</div>`).join('')||'<small>Загрузка…</small>';
-async function pollChat(){if(!OL.ready)return;try{let q=sb.from('messages').select('id,username,body');
+async function pollChat(){if(!OL.ready)return;try{const dy=kyDay();if(OL.chDay!==dy){OL.chDay=dy;OL.chat=[];OL.lastMsg=0;const e0=$('#chl');if(e0)e0.innerHTML=chHtml()} // новый день по Киеву — чат начинается заново
+ let q=sb.from('messages').select('id,username,body,created_at').gte('created_at',new Date(kyMid()).toISOString());
  q=OL.lastMsg?q.gt('id',OL.lastMsg).order('id',{ascending:true}).limit(100):q.order('id',{ascending:false}).limit(40);
  const{data,error}=await q;if(error||!data||!data.length)return;const rows=OL.lastMsg?data:data.reverse();
  OL.lastMsg=rows[rows.length-1].id;OL.chat=OL.chat.concat(rows).slice(-60);const e=$('#chl');if(e){e.innerHTML=chHtml();e.scrollTop=1e9}}catch(e){}}
@@ -578,20 +584,21 @@ const uwheel=ch=>{const gc=ch<10?'#ef4444':ch<35?'#f59e0b':ch<65?'#a3e635':'#34d
  return `<div class=uw style="--gc:${gc}"><svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="100" fill="none" stroke="#ffffff10"/><path d="${ua(0,359.9,84)}" fill="none" stroke="#3a0d1b" stroke-width="18"/><path d="${ua(0,e,84)}" fill="none" stroke="${gc}" stroke-width="18" stroke-linecap="round" style="filter:drop-shadow(0 0 10px ${gc})"/>${tk}<g class=nd style="transform-origin:110px 110px"><path d="M110 4L121 32H99Z" fill="#fff" style="filter:drop-shadow(0 0 8px #fff)"/><line x1="110" y1="32" x2="110" y2="62" stroke="#ffffff90" stroke-width="2"/></g></svg><div class=uc>${UP.t?`<div class=ut>${art(UP.t)}</div>`:'<div style="font-size:34px">⚡</div>'}<b>${fmtCh(ch)}%</b><small>шанс</small></div></div>`};
 A.upfast=()=>{S.upFast=S.upFast?0:1;save();render();toast(S.upFast?'⚡ Быстрый апгрейд включён':'Быстрый апгрейд выключен')};
 
-/* ===== СКИЛЛ-ЧЕК: заработок кристаллов. Серия из 10 чеков, пауза 60 с; ширина зоны сужается и стрелка ускоряется с комбо ===== */
-const SCN=10,SCCD=60000;let SC={ph:'idle'};
+/* ===== СКИЛЛ-ЧЕК: заработок кристаллов. Серия из 10 чеков, пауза 30 с; ширина зоны сужается и стрелка ускоряется с комбо ===== */
+const SCN=10,SCCD=30000;let SC={ph:'idle'}; // серия из 10 чеков, пауза 30 с (отсчёт идёт и если закрыть окно посреди серии)
 const scM=()=>{const r=Math.random();return r<.3?.7+Math.random()*.3:r<.7?1+Math.random()*.5:r<.92?1.5+Math.random()*.5:2+Math.random()*.5}; // множитель ×0.7…×2.5
 const sa=(a,b,r)=>{const p=d=>[(60+r*Math.sin(d*Math.PI/180)).toFixed(2),(60-r*Math.cos(d*Math.PI/180)).toFixed(2)],[x1,y1]=p(a),[x2,y2]=p(b);return `M${x1} ${y1}A${r} ${r} 0 ${b-a>180?1:0} 1 ${x2} ${y2}`};
 const scSay=(m,c)=>{const e=$('#scm');if(e){e.textContent=m;e.style.color=c||''}};
-function scOpen(){if($('#sc'))return scClose();document.body.insertAdjacentHTML('beforeend',`<div id=sc class=scp><div class=row style="justify-content:space-between"><b>🎯 Скилл-чек</b><button class=btn data-a=scx>✕</button></div><svg viewBox="0 0 120 120" data-a=schit><circle cx="60" cy="60" r="50" fill="none" stroke="#ffffff10"/><circle cx="60" cy="60" r="46" fill="none" stroke="#ffffff1f" stroke-width="9"/><path id=scw fill="none" stroke="#fff" stroke-width="9"/><path id=scp fill="none" stroke="#a855f7" stroke-width="9"/><line id=scl x1="60" y1="60" x2="60" y2="10" stroke="#ef4444" stroke-width="3" stroke-linecap="round" style="transform-origin:60px 60px"/><circle cx="60" cy="60" r="4" fill="#ef4444"/></svg><div id=scm class=scm>Нажмите «Запустить»</div><div id=scn class=scn></div><button class="btn pri" id=scb data-a=scgo>Запустить</button><p><small>Пробел или клик по кольцу. ⚪ хорошо +50, 🟣 отлично +625, затем случайный множитель ×0.7–×2.5 и бонус за комбо. Серия ${SCN} чеков, потом пауза 60 с.</small></p></div>`)}
-function scClose(){cancelAnimationFrame(SC.raf);SC={ph:'idle'};$('#sc')?.remove()}
+function scOpen(){if($('#sc'))return scClose();document.body.insertAdjacentHTML('beforeend',`<div id=sc class=scp data-a=schit><div class=row style="justify-content:space-between"><b>💎 Заработай кристаллы</b><button class=btn data-a=scx>✕</button></div><svg viewBox="0 0 120 120"><defs><radialGradient id=scg cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#241a5e"/><stop offset="1" stop-color="#0b0a14"/></radialGradient><linearGradient id=scn1 x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ef4444"/></linearGradient><linearGradient id=scr x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="60" cy="60" r="58" fill="url(#scg)" stroke="url(#scr)" stroke-width="2"/><circle cx="60" cy="60" r="53" fill="none" stroke="#ffffff30" stroke-width="3" stroke-dasharray="1.2 4.25"/><circle cx="60" cy="60" r="46" fill="none" stroke="#ffffff14" stroke-width="10"/><path id=scw fill="none" stroke="#fff" stroke-width="10" style="filter:drop-shadow(0 0 5px #fff)"/><path id=scp fill="none" stroke="#c084fc" stroke-width="10" style="filter:drop-shadow(0 0 7px #a855f7)"/><g id=scl style="transform-origin:60px 60px;filter:drop-shadow(0 0 4px #ef4444)"><path d="M60 62L56.5 24L60 6L63.5 24Z" fill="url(#scn1)"/><path d="M60 58L57.5 70H62.5Z" fill="#ef4444"/></g><circle cx="60" cy="60" r="8" fill="#1b1540" stroke="#ef4444" stroke-width="2"/><circle cx="60" cy="60" r="3" fill="#ef4444"/></svg><div id=scm class=scm>Нажмите «Запустить»</div><div id=scn class=scn></div><button class="btn pri" id=scb data-a=scgo>Запустить</button><p><small>Пробел или клик по любому месту окна. ⚪ хорошо +50, 🟣 отлично +625 (в каждом чеке, зона маленькая), затем случайный множитель ×0.7–×2.5 и бонус за комбо. Серия ${SCN} чеков, потом пауза 30 с — она идёт даже если закрыть окно раньше.</small></p></div>`)}
+function scClose(){cancelAnimationFrame(SC.raf);if(['warn','run','wait'].includes(SC.ph)){S.sc=Date.now()+SCCD;save()} // закрыл посреди серии — пауза всё равно идёт
+ SC={ph:'idle'};$('#sc')?.remove()}
 A.scx=scClose;
-A.scgo=()=>{const w=(S.sc||0)-Date.now();if(w>0)return scSay('Пауза: ещё '+Math.ceil(w/1e3)+' с');if(SC.ph!='idle'&&SC.ph!='done')return;SC={ph:'warn',n:0,combo:0,earn:0};$('#scb').disabled=true;scNext()};
+A.scgo=()=>{const w=(S.sc||0)-Date.now();if(w>0)return scSay('Пауза: ещё '+Math.ceil(w/1e3)+' с');if(SC.ph!='idle'&&SC.ph!='done')return;SC={ph:'warn',n:0,combo:0,earn:0};S.sc=Date.now()+SCCD+SCN*4000;save();$('#scb').disabled=true;scNext()} // пауза стартует сразу при запуске серии, по окончании пересчитывается;
 function scNext(){if(!$('#sc'))return;SC.ph='warn';$('#scn').textContent=`Чек ${SC.n+1}/${SCN} · заработано ${f(SC.earn)}`;scSay('Приготовься…','#fbbf24');beep(500,.12,'square',.05);setTimeout(scRun,800)}
-function scRun(){if(!$('#sc'))return;const l=Math.min(SC.combo,8);SC.v=140+l*10;SC.zw=Math.max(14,30-l*2);SC.pw=Math.random()<.12?Math.max(6,SC.zw*.3):0;
+function scRun(){if(!$('#sc'))return;const l=Math.min(SC.combo,8);SC.v=140+l*10;SC.zw=Math.max(28,48-l*2);SC.pw=Math.max(5,SC.zw*.14);
  SC.a=Math.random()*360;SC.z0=SC.a+110+Math.random()*150;SC.z1=SC.z0+SC.zw;const m=SC.z0%360;
- $('#scw').setAttribute('d',sa(m,m+SC.zw,46));$('#scp').setAttribute('d',SC.pw?sa(m,m+SC.pw,46):'');
- SC.t=performance.now();SC.ph='run';scSay(SC.pw?'⭐ БОНУС!':'Жми!',SC.pw?'#a855f7':'#fff');beep(700,.06,'sine',.06);SC.raf=requestAnimationFrame(scLoop)}
+ $('#scw').setAttribute('d',sa(m,m+SC.zw,46));$('#scp').setAttribute('d',sa(m,m+SC.pw,46));
+ SC.t=performance.now();SC.ph='run';scSay('Жми!','#fff');beep(700,.06,'sine',.06);SC.raf=requestAnimationFrame(scLoop)}
 function scLoop(n){if(SC.ph!='run')return;SC.a+=SC.v*(n-SC.t)/1e3;SC.t=n;const l=$('#scl');if(l)l.style.transform=`rotate(${SC.a}deg)`;if(SC.a>SC.z1)return scRes(0);SC.raf=requestAnimationFrame(scLoop)}
 A.schit=()=>{if(SC.ph=='run')scRes(SC.a>=SC.z0&&SC.a<=SC.z1?(SC.pw&&SC.a<=SC.z0+SC.pw?2:1):0)};
 document.addEventListener('keydown',e=>{if(e.code=='Space'&&$('#sc')&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){e.preventDefault();A.schit()}});
@@ -599,7 +606,7 @@ function scRes(k){SC.ph='wait';cancelAnimationFrame(SC.raf);
  if(k){const m=scM(),cb=1+Math.min(SC.combo,10)*.04,r=Math.round((k==2?625:50)*m*cb);SC.combo++;SC.earn+=r;money(r);if(k==2){S.st.sg=1;chk()}
   beep(k==2?1100:850,.25,'triangle',.08);scSay(`+${r} 💎 · ${k==2?'ОТЛИЧНО':'хорошо'}`,k==2?'#a855f7':'#34d399');$('#scn').innerHTML=`Множитель: <b>×${m.toFixed(2)}</b> · комбо ×${cb.toFixed(2)}`}
  else{SC.combo=0;beep(130,.35,'sawtooth',.07);scSay('Промах','#ef4444');$('#scn').textContent='Комбо сброшено'}
- SC.n++;if(SC.n>=SCN)setTimeout(()=>{S.sc=Date.now()+SCCD;save();SC.ph='done';scSay(`Серия окончена: +${f(SC.earn)}`,'#fbbf24');const b=$('#scb');if(b){b.disabled=false;b.textContent='Новая серия (пауза 60 с)'}},1000);else setTimeout(scNext,1000)}
+ SC.n++;if(SC.n>=SCN)setTimeout(()=>{S.sc=Date.now()+SCCD;save();SC.ph='done';scSay(`Серия окончена: +${f(SC.earn)}`,'#fbbf24');const b=$('#scb');if(b){b.disabled=false;b.textContent='Новая серия (пауза 30 с)'}},1000);else setTimeout(scNext,1000)}
 
 /* ===== МАГАЗИН СКИНОВ ===== */
 const SH={q:'',r:'',s:'a'},SHK=1.2; // цена покупки = цена продажи × 1.2
@@ -642,9 +649,10 @@ addEventListener('offline',()=>offUi(1));addEventListener('online',()=>offUi(0))
 /* ===== РОУТЕР ===== */
 const NAV=[['cases','Кейсы'],['up','Апгрейд'],['ct','Контракты'],['bt','Баттл'],['mn','Mines'],['inv','Инвентарь'],['sh','Магазин'],['lb','Онлайн'],['bn','Бонусы'],['pf','Профиль']];
 let RT=null;const cur=()=>RT||location.hash||'#cases';
-function render(){if(busy)return;const [p,a]=cur().slice(1).split('/'),pg=P[p]?p:'cases';
+let RPG=null;
+function render(){if(busy)return;const sv=[...document.querySelectorAll('.scroll')].map(e=>e.scrollTop),wy=scrollY;const [p,a]=cur().slice(1).split('/'),pg=P[p]?p:'cases';
  $('#nav').innerHTML=NAV.map(([k,n])=>`<a href="#${k}" class="${k==pg||(k=='cases'&&pg=='case')?'on':''}">${n}</a>`).join('');
- $('#app').innerHTML=P[pg](a);upd()}
+ $('#app').innerHTML=P[pg](a);if(RPG===pg){document.querySelectorAll('.scroll').forEach((e,i)=>{if(sv[i])e.scrollTop=sv[i]});scrollTo(0,wy)}RPG=pg;upd()}
 addEventListener('hashchange',()=>{RT=null;render()});
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();if(busy)return;RT=a.getAttribute('href');try{history.replaceState(null,'',RT)}catch(x){}render();scrollTo(0,0)});
 setInterval(()=>document.querySelectorAll('[data-tm]').forEach(e=>{const l=+e.dataset.tm-Date.now();e.textContent=l>0?hms(l):'Готово!'}),1000);
